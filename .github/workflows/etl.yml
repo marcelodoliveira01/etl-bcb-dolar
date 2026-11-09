@@ -1,0 +1,29 @@
+name: Executar ETL Dolar BCB
+
+on:
+  schedule:
+    # Roda de segunda a sexta-feira às 11:00 UTC (08:00 no horário de Brasília)
+    - cron: '0 11 * * 1-5'
+  workflow_dispatch: # Permite disparar a automação manualmente pelo site do GitHub!
+
+jobs:
+  run-etl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependências
+        run: |
+          pip install requests pandas pandas-gbq google-cloud-bigquery google-auth
+
+      - name: Executar script ETL
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        run: |
+          python etl.py
